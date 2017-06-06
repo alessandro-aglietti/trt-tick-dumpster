@@ -5,4 +5,4 @@ before_script:
   -d
 script:
   - mvn test -B
-  - mvn appengine:update --service_account_json_key_file=travis-cigrowbit-52554fcb00cd.json
+  - mvn appengine:update -Dservice_account_json_key_file=travis-cigrowbit-52554fcb00cd.json
