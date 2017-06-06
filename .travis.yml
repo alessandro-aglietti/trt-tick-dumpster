@@ -15,4 +15,4 @@ script:
   - mvn appengine:update -Dappengine.additionalParams="--service_account_json_key_file=travis-cigrowbit-52554fcb00cd.json"
 after_script:
   - appengine_version=$(grep -oPm1 "(?<=<version>)[^<]+" <<< cat src/main/webapp/WEB-INF/appengine-web.xml)
-  - gcloud app services set-traffic default --splits ${appengine_version}=1 --quiet
+  - gcloud app services set-traffic default --splits ${appengine_version}=1 --quiet --verbosity info
