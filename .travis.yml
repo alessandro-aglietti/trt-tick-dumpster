@@ -1,3 +1,4 @@
+language: java
 deploy:
   provider: gae
   keyfile: "travis-cigrowbit-52554fcb00cd.json"
