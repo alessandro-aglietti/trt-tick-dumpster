@@ -24,7 +24,12 @@ public class Trades {
     public void persist() {
         log.info("trades to be persisted " + trades.size());
         for (Trade t: trades ) {
-            t.persist();
+            try {
+                t.persist();
+            } catch (Exception e ) {
+                log.severe("Exception su trade persist " + e.getMessage());
+                e.printStackTrace();
+            }
         }
     }
 
