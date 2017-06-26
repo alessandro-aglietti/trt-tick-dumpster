@@ -39,11 +39,26 @@ public class TaskDailyHourAvg extends HttpServlet {
             return;
         }
 
+        Double forecast_trend = forecast.getAvg();
+        Double last24avg = doAvg(l24avgs);
+        Double forecast_price = ((forecast_trend / 100) * last24avg) + last24avg;
+
         String telegram_message = "";
-        telegram_message += "In base all'ultimo valore di " + l24avgs.get(0).getTf_price() + " visto alle " + l24avgs.get(0).getTf_hour();
-        telegram_message += ", criptoOracleValori dice: " + forecast.getAvg().toString();
+        telegram_message += "In base all'ultimo valore di " + l24avgs.get(0).getTf_price() + ", con media 24h di " + last24avg + " visto alle " + l24avgs.get(0).getTf_hour();
+        telegram_message += ", criptoOracleValori dice: " + forecast_trend.toString();
+        telegram_message += ". Il prezzo medio delle prossime 24h sara' " + forecast_price;
 
         Telegram.sendMessage(new SendMessage(Telegram.config(Telegram.PROPERTY_SCALP_CAVERNA), telegram_message));
 
+    }
+
+    private Double doAvg(List<Trades_last_24> l24avgs) {
+        Double totale = 0d;
+
+        for (Trades_last_24 t : l24avgs) {
+            totale += t.getTf_price();
+        }
+
+        return totale / l24avgs.size();
     }
 }
