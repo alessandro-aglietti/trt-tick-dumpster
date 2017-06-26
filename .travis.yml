@@ -1,5 +1,6 @@
 language: java
 before_install:
+  # https://docs.travis-ci.com/user/encrypting-files/#Encrypting-multiple-files
   - openssl aes-256-cbc -K $encrypted_380c8ce0181b_key -iv $encrypted_380c8ce0181b_iv -in secrets.tar.enc -out secrets.tar -d
   - tar xvf secrets.tar
   - cp telegram.properties src/main/resources/telegram.properties
