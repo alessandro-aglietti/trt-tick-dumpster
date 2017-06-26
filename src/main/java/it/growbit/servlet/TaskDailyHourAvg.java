@@ -39,7 +39,11 @@ public class TaskDailyHourAvg extends HttpServlet {
             return;
         }
 
-        Telegram.sendMessage(new SendMessage(Telegram.config(Telegram.PROPERTY_SCALP_CAVERNA), "criptoOracleValori dice: " + forecast.getAvg().toString()));
+        String telegram_message = "";
+        telegram_message += "In base all'ultimo valore di " + l24avgs.get(0).getTf_price() + " visto alle " + l24avgs.get(0).getTf_hour();
+        telegram_message += ", criptoOracleValori dice: " + forecast.getAvg().toString();
+
+        Telegram.sendMessage(new SendMessage(Telegram.config(Telegram.PROPERTY_SCALP_CAVERNA), telegram_message));
 
     }
 }
