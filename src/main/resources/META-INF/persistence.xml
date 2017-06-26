@@ -8,6 +8,7 @@
 
   <persistence-unit name="trt">
     <class>it.growbit.model.trt.Trade</class>
+    <class>it.growbit.model.trt.Trades_last_24</class>
 
     <properties>
       <property name="javax.persistence.jdbc.user" value="root" />

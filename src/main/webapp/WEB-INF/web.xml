@@ -12,10 +12,20 @@
         <url-pattern>/cron-handler/*</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>task-daily-hour-avg</servlet-name>
+        <servlet-class>it.growbit.servlet.TaskDailyHourAvg</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>task-daily-hour-avg</servlet-name>
+        <url-pattern>/tasks/daily-hour-avg</url-pattern>
+    </servlet-mapping>
+
     <security-constraint>
         <web-resource-collection>
             <web-resource-name>admin</web-resource-name>
             <url-pattern>/cron-handler/*</url-pattern>
+            <url-pattern>/tasks/*</url-pattern>
         </web-resource-collection>
         <auth-constraint>
             <role-name>admin</role-name>

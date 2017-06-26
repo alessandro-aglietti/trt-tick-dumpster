@@ -4,6 +4,10 @@
     <threadsafe>true</threadsafe>
     <use-google-connector-j>true</use-google-connector-j>
 
+    <env-variables>
+        <env-var name="DEFAULT_ENCODING" value="UTF-8" />
+    </env-variables>
+
     <system-properties>
         <property name="java.util.logging.config.file" value="WEB-INF/logging.properties"/>
         <property name="appengine.api.urlfetch.defaultDeadline" value="10"/>

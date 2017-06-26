@@ -5,6 +5,9 @@ import com.google.api.client.http.*;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.JsonObjectParser;
 import com.google.api.client.json.gson.GsonFactory;
+import com.google.appengine.api.taskqueue.Queue;
+import com.google.appengine.api.taskqueue.QueueFactory;
+import com.google.appengine.api.taskqueue.TaskOptions;
 import it.growbit.model.trt.Trades;
 import it.growbit.model.trt.TradesMetaHref;
 import org.apache.http.client.utils.URIBuilder;
@@ -101,5 +104,8 @@ public class CronHandler extends HttpServlet {
 
             next = trades.getMeta().getNext();
         } while (next != null && next.getPage() != null);
+
+        Queue queue = QueueFactory.getDefaultQueue();
+        queue.add(TaskOptions.Builder.withUrl("/tasks/daily-hour-avg").method(TaskOptions.Method.POST));
     }
 }

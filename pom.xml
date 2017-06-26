@@ -56,6 +56,11 @@
             <artifactId>hibernate-entitymanager</artifactId>
             <version>4.2.0.Final</version>
         </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>22.0</version>
+        </dependency>
     </dependencies>
     <build>
         <!-- for hot reload of the web application -->
