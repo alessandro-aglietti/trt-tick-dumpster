@@ -12,6 +12,7 @@ import it.growbit.model.trt.Trades;
 import it.growbit.model.trt.TradesMetaHref;
 import org.apache.http.client.utils.URIBuilder;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
@@ -38,7 +39,7 @@ public class CronHandler extends HttpServlet {
         switch (request_path) {
             case "/hourly":
             default:
-                DateTime after = new DateTime();
+                DateTime after = new DateTime().withZone(DateTimeZone.forID("CET"));
                 after = after.minusHours(1);
                 this.trt_dump(after);
         }
