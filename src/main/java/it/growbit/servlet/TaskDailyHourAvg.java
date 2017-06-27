@@ -21,7 +21,7 @@ import java.util.logging.Logger;
  */
 public class TaskDailyHourAvg extends HttpServlet {
 
-    private static final Logger log = Logger.getLogger(CronHandler.class.getName());
+    private static final Logger log = Logger.getLogger(TaskDailyHourAvg.class.getName());
 
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
@@ -44,11 +44,11 @@ public class TaskDailyHourAvg extends HttpServlet {
         Double forecast_price = ((forecast_trend / 100) * last24avg) + last24avg;
 
         String telegram_message = "";
-        telegram_message += "In base all'ultimo valore di " + l24avgs.get(0).getTf_price() + ", con media 24h di " + last24avg + " visto alle " + l24avgs.get(0).getTf_hour();
+        telegram_message += "In base all'ultimo valore di " + l24avgs.get(0).getTf_price() + ", con media 24h di " + last24avg + " visto alle " + l24avgs.get(0).getTf_hour() + " UTC";
         telegram_message += ", criptoOracleValori dice: " + forecast_trend.toString();
         telegram_message += ". Il prezzo medio delle prossime 24h sara' " + forecast_price;
 
-        Telegram.sendMessage(new SendMessage(Telegram.config(Telegram.PROPERTY_SCALP_CAVERNA), telegram_message));
+        Telegram.sendMessage(new SendMessage(Telegram.props.getProperty(Telegram.PROPERTY_SCALP_CAVERNA), telegram_message));
 
     }
 

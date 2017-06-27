@@ -26,7 +26,7 @@ public class Telegram {
     static final HttpTransport HTTP_TRANSPORT = new UrlFetchTransport();
     static final JsonFactory JSON_FACTORY = new GsonFactory();
 
-    static final Properties props;
+    public static final Properties props;
     private static final String PROPERTY_GEKKO_SECRET = "gekko_secret";
     public static final String PROPERTY_SCALP_CAVERNA = "scalp_caverna";
 
@@ -73,14 +73,10 @@ public class Telegram {
         }
 
         try {
-            request.execute().parseAs(Next24HourAvg.class);
+            request.execute();
         } catch (IOException e) {
             e.printStackTrace();
             return;
         }
-    }
-
-    public static String config(String property_name) {
-        return props.getProperty(property_name);
     }
 }
