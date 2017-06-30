@@ -42,7 +42,7 @@ public class TaskDailyHourTrend extends HttpServlet {
 
         String telegram_message = "";
         telegram_message += "In base all'ultimo valore di " + l24avgs.get(0).getTf_price() + ", visto alle " + l24avgs.get(0).getTf_hour() + " UTC";
-        telegram_message += ", superCriptoOracleTrend dice: " + forecast.toString();
+        telegram_message += ", superCriptoOracleTrend dice: " + forecast.getAvg().toString();
 
         Telegram.sendMessage(new SendMessage(Telegram.props.getProperty(Telegram.PROPERTY_SCALP_CAVERNA), telegram_message));
 
