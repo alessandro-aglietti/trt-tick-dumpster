@@ -30,7 +30,7 @@ public class Matlab {
         URIBuilder uri_template = new URIBuilder()
                 .setScheme("https")
                 .setHost("matlab-dot-growbit-0.appspot.com")
-                .setPath("/matlab/criptoOracleValori");
+                .setPath("/matlab/criptoOracleValori/criptoOracleValori");
 
         URI uri = uri_template.build();
         GenericUrl generic_url = new GenericUrl(uri);
@@ -58,7 +58,7 @@ public class Matlab {
         URIBuilder uri_template = new URIBuilder()
                 .setScheme("https")
                 .setHost("matlab-dot-growbit-0.appspot.com")
-                .setPath("/matlab/superCriptoOracleTrend");
+                .setPath("/matlab/superCriptoOracleTrend/superCriptoOracleTrend");
 
         URI uri = uri_template.build();
         GenericUrl generic_url = new GenericUrl(uri);
