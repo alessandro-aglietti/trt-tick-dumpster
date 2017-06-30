@@ -28,9 +28,9 @@ public class Last24HoursTrend extends Last24HoursAvg {
         for (int i = 1; i < avgs.size(); i++) {
 
             Double previous = avgs.get(i - 1).getTf_price();
-            Double current = avgs.get(1).getTf_price();
+            Double current = avgs.get(i).getTf_price();
 
-            Double trend = ((current - previous) / previous) * 100;
+            Double trend = ((current - previous) / current) * 100;
 
             davgs.add(trend);
         }
