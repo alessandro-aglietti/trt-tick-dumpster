@@ -107,6 +107,7 @@ public class CronHandler extends HttpServlet {
         } while (next != null && next.getPage() != null);
 
         Queue queue = QueueFactory.getDefaultQueue();
-        queue.add(TaskOptions.Builder.withUrl("/tasks/daily-hour-avg").method(TaskOptions.Method.POST));
+//        queue.add(TaskOptions.Builder.withUrl("/tasks/daily-hour-avg").method(TaskOptions.Method.POST));
+        queue.add(TaskOptions.Builder.withUrl("/tasks/daily-hour-trend").method(TaskOptions.Method.POST));
     }
 }

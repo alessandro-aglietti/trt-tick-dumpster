@@ -12,7 +12,7 @@ import java.util.List;
 public class Last24HoursAvg {
 
     @Key
-    private List<Double> avgs = new ArrayList<Double>();
+    protected List<Double> avgs = new ArrayList<Double>();
 
     public Last24HoursAvg() {
 

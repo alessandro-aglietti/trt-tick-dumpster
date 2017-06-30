@@ -52,4 +52,32 @@ public class Matlab {
 
         return forecast;
     }
+
+    public static final Next24HourAvg superCriptoOracleTrend(Last24HoursAvg matlab_model) throws URISyntaxException, IOException {
+
+        URIBuilder uri_template = new URIBuilder()
+                .setScheme("https")
+                .setHost("matlab-dot-growbit-0.appspot.com")
+                .setPath("/matlab/superCriptoOracleTrend");
+
+        URI uri = uri_template.build();
+        GenericUrl generic_url = new GenericUrl(uri);
+
+        HttpContent request_payload = new JsonHttpContent(JSON_FACTORY, matlab_model);
+
+        HttpRequestFactory requestFactory =
+                HTTP_TRANSPORT.createRequestFactory(new HttpRequestInitializer() {
+                    @Override
+                    public void initialize(HttpRequest request) {
+                        request.setParser(new JsonObjectParser(JSON_FACTORY));
+                    }
+                });
+
+        HttpRequest request = requestFactory.buildPostRequest(generic_url, request_payload);
+
+
+        Next24HourAvg forecast = request.execute().parseAs(Next24HourAvg.class);
+
+        return forecast;
+    }
 }

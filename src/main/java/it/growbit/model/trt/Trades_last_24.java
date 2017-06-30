@@ -3,10 +3,7 @@ package it.growbit.model.trt;
 import it.growbit.util.EMF;
 import org.hibernate.annotations.Immutable;
 
-import javax.persistence.Entity;
-import javax.persistence.EntityManager;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,11 +36,18 @@ public class Trades_last_24 {
     }
 
     public static List<Trades_last_24> list() {
+        return list(24);
+    }
+
+    public static List<Trades_last_24> list(Integer limit) {
         List<Trades_last_24> ret = new ArrayList<Trades_last_24>();
         EntityManager em = EMF.get_trt().createEntityManager();
         em.getTransaction().begin();
 
-        ret = em.createQuery("FROM Trades_last_24").getResultList();
+        Query query = em.createQuery("FROM Trades_last_24");
+        query.setMaxResults(limit);
+
+        ret = query.getResultList();
 
         em.getTransaction().commit();
         em.close();

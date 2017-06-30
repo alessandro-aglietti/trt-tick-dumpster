@@ -21,6 +21,15 @@
         <url-pattern>/tasks/daily-hour-avg</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>daily-hour-trend</servlet-name>
+        <servlet-class>it.growbit.servlet.TaskDailyHourTrend</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>daily-hour-trend</servlet-name>
+        <url-pattern>/tasks/daily-hour-trend</url-pattern>
+    </servlet-mapping>
+
     <security-constraint>
         <web-resource-collection>
             <web-resource-name>admin</web-resource-name>
