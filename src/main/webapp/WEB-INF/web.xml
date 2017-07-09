@@ -30,6 +30,15 @@
         <url-pattern>/tasks/daily-hour-trend</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>gae-flex-auto-scaler</servlet-name>
+        <servlet-class>it.growbit.servlet.GAEFlexAutoScalerServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>gae-flex-auto-scaler</servlet-name>
+        <url-pattern>/gae-flex-auto-scaler</url-pattern>
+    </servlet-mapping>
+
     <security-constraint>
         <web-resource-collection>
             <web-resource-name>admin</web-resource-name>
