@@ -31,8 +31,17 @@
     </servlet-mapping>
 
     <servlet>
-        <servlet-name>gae-flex-auto-scaler</servlet-name>
+        <servlet-name>gae-flex-auto-scaler-test</servlet-name>
         <servlet-class>it.growbit.servlet.GAEFlexAutoScalerServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>gae-flex-auto-scaler-test</servlet-name>
+        <url-pattern>/gae-flex-auto-scaler-test</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>gae-flex-auto-scaler</servlet-name>
+        <servlet-class>it.growbit.flex.GAEFlexAutoScaler</servlet-class>
         <init-param>
             <param-name>servlet-mapping-url-pattern</param-name>
             <param-value>/gae-flex-auto-scaler</param-value>

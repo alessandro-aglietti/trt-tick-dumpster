@@ -11,6 +11,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 import java.util.concurrent.*;
 import java.util.logging.Logger;
 
@@ -19,12 +21,45 @@ import java.util.logging.Logger;
  */
 public class GAEFlexAutoScaler extends HttpServlet implements Callable<Boolean> {
 
+    private static final String SERVLET_MAPPING_URL_PATTERN = "servlet-mapping-url-pattern";
     private static String servlet_mapping_url_pattern = null;
     private static final String GAE_SERVICE_VERSION = "gae_service_version";
     private String gae_service_version = null;
     private static final String GAE_SERVICE_NAME = "gae_service_name";
     private String gae_service_name = null;
     private Operations current_operation;
+    private static Properties props = null;
+
+    public String get_servlet_mapping_url_pattern() {
+        if (servlet_mapping_url_pattern == null) {
+            /**
+             * per qualche motivo la warmup request
+             * non si e' fatta viva
+             */
+            log.warning("Where are you warmup?");
+            this.load_properties();
+            servlet_mapping_url_pattern = props.getProperty(SERVLET_MAPPING_URL_PATTERN);
+
+        }
+        return servlet_mapping_url_pattern;
+    }
+
+    private void load_properties() {
+        if (this.props == null) {
+            props = new Properties();
+            if (GAEFlexAutoScaler.class.getResource("/gae-flex-auto-scaler.properties") != null) {
+                InputStream is = GAEFlexAutoScaler.class.getResourceAsStream("/gae-flex-auto-scaler.properties");
+                try {
+                    props.load(is);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                log.warning("gae-flex-auto-scaler.properties not found using defaults");
+                props.put(SERVLET_MAPPING_URL_PATTERN, "/gae-flex-auto-scaler");
+            }
+        }
+    }
 
     public enum Operations {START, STOP}
 
@@ -48,7 +83,7 @@ public class GAEFlexAutoScaler extends HttpServlet implements Callable<Boolean> 
     @Override
     public void init() throws ServletException {
         log.info("init");
-        servlet_mapping_url_pattern = getInitParameter("servlet-mapping-url-pattern");
+        servlet_mapping_url_pattern = getInitParameter(SERVLET_MAPPING_URL_PATTERN);
         if (servlet_mapping_url_pattern != null) {
             log.info("servlet_mapping_url_pattern: " + servlet_mapping_url_pattern);
         } else {
@@ -105,7 +140,7 @@ public class GAEFlexAutoScaler extends HttpServlet implements Callable<Boolean> 
         log.info("stop no future");
         Queue queue = QueueFactory.getDefaultQueue();
         queue.add(TaskOptions.Builder
-                .withUrl(servlet_mapping_url_pattern)
+                .withUrl(this.get_servlet_mapping_url_pattern())
                 .method(TaskOptions.Method.DELETE)
                 .param(GAE_SERVICE_NAME, this.gae_service_name)
                 .param(GAE_SERVICE_VERSION, this.gae_service_version)
