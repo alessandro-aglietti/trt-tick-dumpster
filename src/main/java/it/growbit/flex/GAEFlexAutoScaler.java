@@ -169,7 +169,7 @@ public class GAEFlexAutoScaler extends HttpServlet implements Callable<Boolean> 
     }
 
     private Boolean _stop() throws InterruptedException, IOException {
-        return this.set_gae_serving_status("STOPPED");
+        return this.set_gae_serving_status("STOPPED", false);
     }
 
     private Boolean _start() throws InterruptedException, IOException {
@@ -177,6 +177,10 @@ public class GAEFlexAutoScaler extends HttpServlet implements Callable<Boolean> 
     }
 
     private Boolean set_gae_serving_status(String serving_status) throws IOException, InterruptedException {
+        return this.set_gae_serving_status(serving_status, true);
+    }
+
+    private Boolean set_gae_serving_status(String serving_status, Boolean wait_untile_done) throws IOException, InterruptedException {
         AppIdentityCredential credential = new AppIdentityCredential(AppengineScopes.all());
 
         HttpTransport HTTP_TRANSPORT = new UrlFetchTransport();
@@ -193,6 +197,9 @@ public class GAEFlexAutoScaler extends HttpServlet implements Callable<Boolean> 
         Version content = new Version();
         content.setServingStatus(serving_status);
         Operation operation = gae_client.apps().services().versions().patch(appsId, servicesId, versionsId, content).setUpdateMask("servingStatus").execute();
+        if (!wait_untile_done) {
+            return true;
+        }
         String operation_name = operation.getName();
 //        JsonParser parser = new JsonParser();
 //        InputStream response_content = gae_client.apps().services().versions().patch(appsId, servicesId, versionsId, content).setUpdateMask("servingStatus").executeAsInputStream();
