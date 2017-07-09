@@ -78,12 +78,7 @@ public class GAEFlexAutoScaler extends HttpServlet implements Callable<Boolean> 
     @Override
     public void init(ServletConfig config) throws ServletException {
         log.info("init with ServletConfig");
-    }
-
-    @Override
-    public void init() throws ServletException {
-        log.info("init");
-        servlet_mapping_url_pattern = getInitParameter(SERVLET_MAPPING_URL_PATTERN);
+        servlet_mapping_url_pattern = config.getInitParameter(SERVLET_MAPPING_URL_PATTERN);
         if (servlet_mapping_url_pattern != null) {
             log.info("servlet_mapping_url_pattern: " + servlet_mapping_url_pattern);
         } else {
