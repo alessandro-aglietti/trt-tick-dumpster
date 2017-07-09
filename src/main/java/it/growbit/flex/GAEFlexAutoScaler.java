@@ -25,6 +25,8 @@ import java.io.InputStream;
 import java.util.Properties;
 import java.util.concurrent.*;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by name on 09/07/17.
@@ -167,30 +169,14 @@ public class GAEFlexAutoScaler extends HttpServlet implements Callable<Boolean> 
     }
 
     private Boolean _stop() throws InterruptedException, IOException {
-        AppIdentityCredential credential = new AppIdentityCredential(AppengineScopes.all());
-
-        HttpTransport HTTP_TRANSPORT = new UrlFetchTransport();
-        JsonFactory JSON_FACTORY = new GsonFactory();
-
-        Appengine gae_client = new Appengine.Builder(HTTP_TRANSPORT, JSON_FACTORY, credential).build();
-
-        ApiProxy.Environment env = ApiProxy.getCurrentEnvironment();
-        String appsId = (String) env.getAttributes().get("com.google.appengine.runtime.default_version_hostname");
-        String servicesId = this.gae_service_name;
-        String versionsId = this.gae_service_version;
-        Version content = new Version();
-        content.setServingStatus("STOPPED");
-        Operation operation = gae_client.apps().services().versions().patch(appsId, servicesId, versionsId, content).execute();
-        while (!operation.getDone()) {
-            log.info(operation.getName() + " not done yet for serving status" + content.getServingStatus());
-            Thread.sleep(2000);
-            operation = gae_client.apps().operations().get(appsId, operation.getName()).execute();
-        }
-
-        return operation.getDone();
+        return this.set_gae_serving_status("STOPPED");
     }
 
     private Boolean _start() throws InterruptedException, IOException {
+        return this.set_gae_serving_status("SERVING");
+    }
+
+    private Boolean set_gae_serving_status(String serving_status) throws IOException, InterruptedException {
         AppIdentityCredential credential = new AppIdentityCredential(AppengineScopes.all());
 
         HttpTransport HTTP_TRANSPORT = new UrlFetchTransport();
@@ -200,18 +186,39 @@ public class GAEFlexAutoScaler extends HttpServlet implements Callable<Boolean> 
 
         ApiProxy.Environment env = ApiProxy.getCurrentEnvironment();
         String appsId = (String) env.getAttributes().get("com.google.appengine.runtime.default_version_hostname");
+//        for local dev
+//        appsId = "growbit-0";
         String servicesId = this.gae_service_name;
         String versionsId = this.gae_service_version;
         Version content = new Version();
-        content.setServingStatus("SERVING");
-        Operation operation = gae_client.apps().services().versions().patch(appsId, servicesId, versionsId, content).execute();
-        while (!operation.getDone()) {
-            log.info(operation.getName() + " not done yet for serving status" + content.getServingStatus());
+        content.setServingStatus(serving_status);
+        Operation operation = gae_client.apps().services().versions().patch(appsId, servicesId, versionsId, content).setUpdateMask("servingStatus").execute();
+        String operation_name = operation.getName();
+//        JsonParser parser = new JsonParser();
+//        InputStream response_content = gae_client.apps().services().versions().patch(appsId, servicesId, versionsId, content).setUpdateMask("servingStatus").executeAsInputStream();
+//        JsonObject operation = parser.parse(new InputStreamReader(response_content)).getAsJsonObject();
+//        String operation_name = operation.get("name").getAsString();
+        /**
+         * operation has no getId()
+         * we can get from the name in the form of
+         * apps/{appsId}/operations/2341b6b7-0110-4888-a857-0c9e0163269d
+         */
+        Matcher m = Pattern.compile("apps\\/" + appsId + "\\/operations\\/([a-z0-9-]+)").matcher(operation_name);
+        m.find();
+        String operation_id = m.group(1);
+        Boolean operation_done;
+        do {
             Thread.sleep(2000);
-            operation = gae_client.apps().operations().get(appsId, operation.getName()).execute();
-        }
+            operation = gae_client.apps().operations().get(appsId, operation_id).execute();
+//            operation = parser.parse(new InputStreamReader(gae_client.apps().operations().get(appsId, operation_id).executeAsInputStream())).getAsJsonObject();
+//            operation_done = operation.has("done") ? operation.get("done").getAsBoolean() : false;
+            operation_done = operation.containsKey("done") ? operation.getDone() : false;
+            if (!operation_done) {
+                log.info(operation_name + " not done yet for serving status " + content.getServingStatus());
+            }
+        } while (!operation_done);
 
-        return operation.getDone();
+        return operation_done;
     }
 
     @Override
