@@ -37,6 +37,7 @@
             <param-name>servlet-mapping-url-pattern</param-name>
             <param-value>/gae-flex-auto-scaler</param-value>
         </init-param>
+        <load-on-startup>1</load-on-startup>
     </servlet>
     <servlet-mapping>
         <servlet-name>gae-flex-auto-scaler</servlet-name>

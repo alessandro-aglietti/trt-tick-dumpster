@@ -18,7 +18,7 @@ import java.util.logging.Logger;
  */
 public class GAEFlexAutoScaler extends HttpServlet implements Callable<Boolean> {
 
-    private String servlet_mapping_url_pattern = null;
+    private static String servlet_mapping_url_pattern = null;
     private static final String GAE_SERVICE_VERSION = "gae_service_version";
     private String gae_service_version = null;
     private static final String GAE_SERVICE_NAME = "gae_service_name";
@@ -33,8 +33,20 @@ public class GAEFlexAutoScaler extends HttpServlet implements Callable<Boolean> 
 
     /**
      * Don't use, @see singleton()
+     * it's there because
+     * Im also a servlet
      */
     public GAEFlexAutoScaler() {
+    }
+
+    @Override
+    public void init() throws ServletException {
+        servlet_mapping_url_pattern = getInitParameter("servlet-mapping-url-pattern");
+        if (servlet_mapping_url_pattern != null) {
+            log.info("servlet_mapping_url_pattern: " + servlet_mapping_url_pattern);
+        } else {
+            log.severe("servlet_mapping_url_pattern null :(");
+        }
     }
 
     private GAEFlexAutoScaler(String gae_service_name, String gae_service_version) {
@@ -43,12 +55,7 @@ public class GAEFlexAutoScaler extends HttpServlet implements Callable<Boolean> 
         log.info("init executor");
         this.executor = Executors.newCachedThreadPool(ThreadManager.backgroundThreadFactory());
         log.info("init executor done");
-        this.servlet_mapping_url_pattern = getInitParameter("servlet-mapping-url-pattern");
-        if (this.servlet_mapping_url_pattern != null) {
-            log.info("servlet_mapping_url_pattern: " + this.servlet_mapping_url_pattern);
-        } else {
-            log.severe("servlet_mapping_url_pattern null :(");
-        }
+        log.info("servlet_mapping_url_pattern: " + servlet_mapping_url_pattern);
     }
 
     public static GAEFlexAutoScaler singleton(String gae_service_name, String gae_service_version) {
@@ -87,7 +94,7 @@ public class GAEFlexAutoScaler extends HttpServlet implements Callable<Boolean> 
         log.info("stop no future");
         Queue queue = QueueFactory.getDefaultQueue();
         queue.add(TaskOptions.Builder
-                .withUrl(this.servlet_mapping_url_pattern)
+                .withUrl(servlet_mapping_url_pattern)
                 .method(TaskOptions.Method.DELETE)
                 .param(GAE_SERVICE_NAME, this.gae_service_name)
                 .param(GAE_SERVICE_VERSION, this.gae_service_version)
