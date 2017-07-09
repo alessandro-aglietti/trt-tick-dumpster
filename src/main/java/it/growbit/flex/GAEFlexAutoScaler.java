@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Properties;
 import java.util.concurrent.*;
 import java.util.logging.Logger;
@@ -181,7 +182,7 @@ public class GAEFlexAutoScaler extends HttpServlet implements Callable<Boolean> 
     }
 
     private Boolean set_gae_serving_status(String serving_status, Boolean wait_untile_done) throws IOException, InterruptedException {
-        AppIdentityCredential credential = new AppIdentityCredential(AppengineScopes.all());
+        AppIdentityCredential credential = new AppIdentityCredential(Arrays.asList(AppengineScopes.APPENGINE_ADMIN);
 
         HttpTransport HTTP_TRANSPORT = new UrlFetchTransport();
         JsonFactory JSON_FACTORY = new GsonFactory();
