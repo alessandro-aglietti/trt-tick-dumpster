@@ -1,33 +1,60 @@
 package it.growbit.flex;
 
 import com.google.appengine.api.ThreadManager;
+import com.google.appengine.api.taskqueue.Queue;
+import com.google.appengine.api.taskqueue.QueueFactory;
+import com.google.appengine.api.taskqueue.TaskOptions;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.concurrent.*;
 import java.util.logging.Logger;
 
 /**
  * Created by name on 09/07/17.
  */
-public class GAEFlexAutoScaler implements Callable<Boolean> {
+public class GAEFlexAutoScaler extends HttpServlet implements Callable<Boolean> {
 
+    private String servlet_mapping_url_pattern = null;
+    private static final String GAE_SERVICE_VERSION = "gae_service_version";
+    private String gae_service_version = null;
+    private static final String GAE_SERVICE_NAME = "gae_service_name";
+    private String gae_service_name = null;
     private Operations current_operation;
 
     public enum Operations {START, STOP}
 
     private static GAEFlexAutoScaler singleton = null;
-    private final ExecutorService executor;
+    private ExecutorService executor = null;
     private static final Logger log = Logger.getLogger(GAEFlexAutoScaler.class.getName());
 
-    private GAEFlexAutoScaler() {
+    /**
+     * Don't use, @see singleton()
+     */
+    public GAEFlexAutoScaler() {
+    }
+
+    private GAEFlexAutoScaler(String gae_service_name, String gae_service_version) {
+        this.gae_service_name = gae_service_name;
+        this.gae_service_version = gae_service_version;
         log.info("init executor");
         this.executor = Executors.newCachedThreadPool(ThreadManager.backgroundThreadFactory());
         log.info("init executor done");
+        this.servlet_mapping_url_pattern = getInitParameter("servlet-mapping-url-pattern");
+        if (this.servlet_mapping_url_pattern != null) {
+            log.info("servlet_mapping_url_pattern: " + this.servlet_mapping_url_pattern);
+        } else {
+            log.severe("servlet_mapping_url_pattern null :(");
+        }
     }
 
-    public static GAEFlexAutoScaler singleton() {
+    public static GAEFlexAutoScaler singleton(String gae_service_name, String gae_service_version) {
         if (singleton == null) {
             log.info("singleton empty, new it!");
-            singleton = new GAEFlexAutoScaler();
+            singleton = new GAEFlexAutoScaler(gae_service_name, gae_service_version);
         } else {
             log.info("singleton exist use it!");
         }
@@ -41,10 +68,30 @@ public class GAEFlexAutoScaler implements Callable<Boolean> {
         return this.executor.submit(this);
     }
 
-    public Future<Boolean> stop() {
+    /**
+     * Allowed only on manual scaling
+     * or basic scaling
+     *
+     * @return
+     */
+    public Future<Boolean> stop_as_thread() {
         log.info("stop future");
         this.current_operation = Operations.STOP;
         return this.executor.submit(this);
+    }
+
+    /**
+     * Using App Engine defalt queue
+     */
+    public void stop_as_task() {
+        log.info("stop no future");
+        Queue queue = QueueFactory.getDefaultQueue();
+        queue.add(TaskOptions.Builder
+                .withUrl(this.servlet_mapping_url_pattern)
+                .method(TaskOptions.Method.DELETE)
+                .param(GAE_SERVICE_NAME, this.gae_service_name)
+                .param(GAE_SERVICE_VERSION, this.gae_service_version)
+        );
     }
 
     @Override
@@ -68,8 +115,23 @@ public class GAEFlexAutoScaler implements Callable<Boolean> {
         return false;
     }
 
-    private Boolean _start() {
-        log.info("_start");
+    private Boolean _start() throws InterruptedException {
+        log.info("_start sleep");
+        Thread.sleep(2 * 1000);
+        log.info("_start sleep end");
         return false;
+    }
+
+    @Override
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        this.gae_service_name = req.getParameter(GAE_SERVICE_NAME);
+        this.gae_service_version = req.getParameter(GAE_SERVICE_VERSION);
+        try {
+            this._stop();
+        } catch (InterruptedException e) {
+            log.severe("InterruptedException: " + e.getMessage());
+            e.printStackTrace();
+        }
+        resp.setStatus(200);
     }
 }

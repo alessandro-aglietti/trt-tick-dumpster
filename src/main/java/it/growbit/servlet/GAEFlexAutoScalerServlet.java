@@ -16,7 +16,7 @@ import java.util.logging.Logger;
  */
 public class GAEFlexAutoScalerServlet extends HttpServlet {
 
-    private static final GAEFlexAutoScaler fas = GAEFlexAutoScaler.singleton();
+    private static final GAEFlexAutoScaler fas = GAEFlexAutoScaler.singleton("matlab", "20170630t121542");
     private static final Logger log = Logger.getLogger(GAEFlexAutoScalerServlet.class.getName());
 
     @Override
@@ -24,6 +24,7 @@ public class GAEFlexAutoScalerServlet extends HttpServlet {
         Future<Boolean> start = fas.start();
         log.info("Start call init");
         try {
+            Thread.sleep(10 * 1000);
             start.get();
             log.info("Start call done");
         } catch (InterruptedException e) {
@@ -34,7 +35,7 @@ public class GAEFlexAutoScalerServlet extends HttpServlet {
             return;
         }
 
-        fas.stop();
+        fas.stop_as_task();
         log.info("Stop call init");
         resp.setStatus(200);
         resp.getOutputStream().println("Detached successful!!!");
