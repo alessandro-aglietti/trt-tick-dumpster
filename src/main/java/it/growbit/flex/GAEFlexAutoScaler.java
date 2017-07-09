@@ -182,7 +182,7 @@ public class GAEFlexAutoScaler extends HttpServlet implements Callable<Boolean> 
     }
 
     private Boolean set_gae_serving_status(String serving_status, Boolean wait_untile_done) throws IOException, InterruptedException {
-        AppIdentityCredential credential = new AppIdentityCredential(Arrays.asList(AppengineScopes.APPENGINE_ADMIN));
+        AppIdentityCredential credential = new AppIdentityCredential(AppengineScopes.all());
         String service_account_name = credential.getAppIdentityService().getServiceAccountName();
         log.info(service_account_name);
 
