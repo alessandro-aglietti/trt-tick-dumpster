@@ -27,7 +27,7 @@ public class TaskDailyHourTrend extends HttpServlet {
 
     private static final Logger log = Logger.getLogger(TaskDailyHourTrend.class.getName());
 
-    private static final GAEFlexAutoScaler fas = GAEFlexAutoScaler.singleton("matlab", "20170709t110004");
+    private static final GAEFlexAutoScaler fas = GAEFlexAutoScaler.singleton("matlab", "20170709t143018");
 
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
