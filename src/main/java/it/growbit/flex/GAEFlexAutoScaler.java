@@ -1,9 +1,19 @@
 package it.growbit.flex;
 
+import com.google.api.client.extensions.appengine.http.UrlFetchTransport;
+import com.google.api.client.googleapis.extensions.appengine.auth.oauth2.AppIdentityCredential;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.gson.GsonFactory;
+import com.google.api.services.appengine.v1.Appengine;
+import com.google.api.services.appengine.v1.AppengineScopes;
+import com.google.api.services.appengine.v1.model.Operation;
+import com.google.api.services.appengine.v1.model.Version;
 import com.google.appengine.api.ThreadManager;
 import com.google.appengine.api.taskqueue.Queue;
 import com.google.appengine.api.taskqueue.QueueFactory;
 import com.google.appengine.api.taskqueue.TaskOptions;
+import com.google.apphosting.api.ApiProxy;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -156,18 +166,52 @@ public class GAEFlexAutoScaler extends HttpServlet implements Callable<Boolean> 
         return false;
     }
 
-    private Boolean _stop() throws InterruptedException {
-        log.info("_stop start sleep");
-        Thread.sleep(10 * 1000);
-        log.info("_stop end sleep");
-        return false;
+    private Boolean _stop() throws InterruptedException, IOException {
+        AppIdentityCredential credential = new AppIdentityCredential(AppengineScopes.all());
+
+        HttpTransport HTTP_TRANSPORT = new UrlFetchTransport();
+        JsonFactory JSON_FACTORY = new GsonFactory();
+
+        Appengine gae_client = new Appengine.Builder(HTTP_TRANSPORT, JSON_FACTORY, credential).build();
+
+        ApiProxy.Environment env = ApiProxy.getCurrentEnvironment();
+        String appsId = (String) env.getAttributes().get("com.google.appengine.runtime.default_version_hostname");
+        String servicesId = this.gae_service_name;
+        String versionsId = this.gae_service_version;
+        Version content = new Version();
+        content.setServingStatus("STOPPED");
+        Operation operation = gae_client.apps().services().versions().patch(appsId, servicesId, versionsId, content).execute();
+        while (!operation.getDone()) {
+            log.info(operation.getName() + " not done yet for serving status" + content.getServingStatus());
+            Thread.sleep(2000);
+            operation = gae_client.apps().operations().get(appsId, operation.getName()).execute();
+        }
+
+        return operation.getDone();
     }
 
-    private Boolean _start() throws InterruptedException {
-        log.info("_start sleep");
-        Thread.sleep(2 * 1000);
-        log.info("_start sleep end");
-        return false;
+    private Boolean _start() throws InterruptedException, IOException {
+        AppIdentityCredential credential = new AppIdentityCredential(AppengineScopes.all());
+
+        HttpTransport HTTP_TRANSPORT = new UrlFetchTransport();
+        JsonFactory JSON_FACTORY = new GsonFactory();
+
+        Appengine gae_client = new Appengine.Builder(HTTP_TRANSPORT, JSON_FACTORY, credential).build();
+
+        ApiProxy.Environment env = ApiProxy.getCurrentEnvironment();
+        String appsId = (String) env.getAttributes().get("com.google.appengine.runtime.default_version_hostname");
+        String servicesId = this.gae_service_name;
+        String versionsId = this.gae_service_version;
+        Version content = new Version();
+        content.setServingStatus("SERVING");
+        Operation operation = gae_client.apps().services().versions().patch(appsId, servicesId, versionsId, content).execute();
+        while (!operation.getDone()) {
+            log.info(operation.getName() + " not done yet for serving status" + content.getServingStatus());
+            Thread.sleep(2000);
+            operation = gae_client.apps().operations().get(appsId, operation.getName()).execute();
+        }
+
+        return operation.getDone();
     }
 
     @Override
