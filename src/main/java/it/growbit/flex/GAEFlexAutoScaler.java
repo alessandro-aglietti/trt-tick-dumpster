@@ -5,6 +5,7 @@ import com.google.appengine.api.taskqueue.Queue;
 import com.google.appengine.api.taskqueue.QueueFactory;
 import com.google.appengine.api.taskqueue.TaskOptions;
 
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -40,7 +41,13 @@ public class GAEFlexAutoScaler extends HttpServlet implements Callable<Boolean> 
     }
 
     @Override
+    public void init(ServletConfig config) throws ServletException {
+        log.info("init with ServletConfig");
+    }
+
+    @Override
     public void init() throws ServletException {
+        log.info("init");
         servlet_mapping_url_pattern = getInitParameter("servlet-mapping-url-pattern");
         if (servlet_mapping_url_pattern != null) {
             log.info("servlet_mapping_url_pattern: " + servlet_mapping_url_pattern);
@@ -49,11 +56,15 @@ public class GAEFlexAutoScaler extends HttpServlet implements Callable<Boolean> 
         }
     }
 
+    /**
+     * @param gae_service_name
+     * @param gae_service_version null for default version
+     */
     private GAEFlexAutoScaler(String gae_service_name, String gae_service_version) {
         this.gae_service_name = gae_service_name;
         this.gae_service_version = gae_service_version;
         log.info("init executor");
-        this.executor = Executors.newCachedThreadPool(ThreadManager.backgroundThreadFactory());
+        this.executor = Executors.newCachedThreadPool(ThreadManager.currentRequestThreadFactory());
         log.info("init executor done");
         log.info("servlet_mapping_url_pattern: " + servlet_mapping_url_pattern);
     }
