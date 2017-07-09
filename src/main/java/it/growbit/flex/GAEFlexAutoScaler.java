@@ -14,6 +14,7 @@ import com.google.appengine.api.taskqueue.Queue;
 import com.google.appengine.api.taskqueue.QueueFactory;
 import com.google.appengine.api.taskqueue.TaskOptions;
 import com.google.apphosting.api.ApiProxy;
+import com.google.gson.Gson;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -22,7 +23,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 import java.util.Properties;
 import java.util.concurrent.*;
 import java.util.logging.Logger;
@@ -192,7 +192,15 @@ public class GAEFlexAutoScaler extends HttpServlet implements Callable<Boolean> 
         Appengine gae_client = new Appengine.Builder(HTTP_TRANSPORT, JSON_FACTORY, credential).build();
 
         ApiProxy.Environment env = ApiProxy.getCurrentEnvironment();
-        String appsId = (String) env.getAttributes().get("com.google.appengine.runtime.default_version_hostname");
+        Gson gson = new Gson();
+        log.info("ENV FROM API PROXY " + gson.toJson(env.getAttributes()));
+        /**
+         * {appId}.appspot.com
+         */
+        String default_version_hostname = (String) env.getAttributes().get("com.google.appengine.runtime.default_version_hostname");
+        Matcher m = Pattern.compile("([a-z0-9-_]+)\\.appspot\\.com").matcher(default_version_hostname);
+        m.find();
+        String appsId = m.group(1);
 //        for local dev
 //        appsId = "growbit-0";
         String servicesId = this.gae_service_name;
@@ -213,7 +221,7 @@ public class GAEFlexAutoScaler extends HttpServlet implements Callable<Boolean> 
          * we can get from the name in the form of
          * apps/{appsId}/operations/2341b6b7-0110-4888-a857-0c9e0163269d
          */
-        Matcher m = Pattern.compile("apps\\/" + appsId + "\\/operations\\/([a-z0-9-]+)").matcher(operation_name);
+        m = Pattern.compile("apps\\/" + appsId + "\\/operations\\/([a-z0-9-]+)").matcher(operation_name);
         m.find();
         String operation_id = m.group(1);
         Boolean operation_done;
