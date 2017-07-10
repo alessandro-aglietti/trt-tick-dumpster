@@ -189,8 +189,6 @@ public class GAEFlexAutoScaler extends HttpServlet implements Callable<Boolean> 
         HttpTransport HTTP_TRANSPORT = new UrlFetchTransport();
         JsonFactory JSON_FACTORY = new GsonFactory();
 
-        Appengine gae_client = new Appengine.Builder(HTTP_TRANSPORT, JSON_FACTORY, credential).build();
-
         ApiProxy.Environment env = ApiProxy.getCurrentEnvironment();
         Gson gson = new Gson();
         log.info("ENV FROM API PROXY " + gson.toJson(env.getAttributes()));
@@ -203,6 +201,12 @@ public class GAEFlexAutoScaler extends HttpServlet implements Callable<Boolean> 
         String appsId = m.group(1);
 //        for local dev
 //        appsId = "growbit-0";
+
+        /**
+         * Application name is not set. Call Builder#setApplicationName
+         */
+        Appengine gae_client = new Appengine.Builder(HTTP_TRANSPORT, JSON_FACTORY, credential).setApplicationName(appsId).build();
+
         String servicesId = this.gae_service_name;
         String versionsId = this.gae_service_version;
         Version content = new Version();
