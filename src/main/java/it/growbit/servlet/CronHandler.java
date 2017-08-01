@@ -41,7 +41,7 @@ public class CronHandler extends HttpServlet {
             default:
                 DateTime after = new DateTime().withZone(DateTimeZone.forID("CET"));
                 after = after.minusHours(1);
-                this.trt_dump(after);
+// disabled for savings this.trt_dump(after);
         }
         PrintWriter out = resp.getWriter();
         out.println("Hello, world");

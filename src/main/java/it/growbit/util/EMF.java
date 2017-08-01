@@ -29,8 +29,8 @@ public final class EMF {
         }
     }
 
-    private static final EntityManagerFactory emf_trt = Persistence.createEntityManagerFactory(
-            "trt", properties);
+    private static final EntityManagerFactory emf_trt = null;
+// disabled for savings private static final EntityManagerFactory emf_trt = Persistence.createEntityManagerFactory("trt", properties);
 
     private EMF() {
     }
